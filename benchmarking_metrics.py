@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from Utilities.transformation_functions import (clean_metrics, 
-                                                create_compliance_21, 
-                                                create_port_df, 
-                                                top_quartile_SEUI, 
-                                                bottom_quartile_SEUI, 
-                                                create_port_metrics, 
-                                                create_workbook)
+from Utilities.clean_metrics import clean_metrics
+from Utilities.create_compliance import create_compliance_21
+from Utilities.create_port_df import create_port_df
+from Utilities.top_quartile_SEUI import top_quartile_SEUI
+from Utilities.bottom_quartile_SEUI import bottom_quartile_SEUI
+from Utilities.create_port_metrics import create_port_metrics
+from Utilities.create_workbook import create_workbook
+
 
 # Create a title and instructions
 st.title('2022 Compliance Year')
@@ -22,7 +22,7 @@ st.markdown('''
         - Yearly from Dec 31, 2017 to Dec 31st 2021
         
     - Properties 
-        - Select which building to include in the report
+        - Select which buildings to include in the report
 
     - Information and Metrics
         - Los Angeles Building ID
@@ -35,6 +35,14 @@ st.markdown('''
         - Property GFA - Self-Reported (sqft)
         - Water Use Intensity (All Water Sources) (gal/sqft)
         ''')
+
+# Display a select box
+comp_period = st.selectbox('Choose an EBEWE Compliance Year', ['Dec 1, 2021: Comparative Period Jan 2016 - Dec 2020', 
+                                                'Dec 1, 2022: Comparative Period Jan 2017 - Dec 2021', 
+                                                'Dec 1, 2023: Comparative Period Jan 2018 - Dec 2022', 
+                                                'Dec 1, 2024: Comparative Period Jan 2019 - Dec 2023', 
+                                                'Dec 1, 2025: Comparative Period Jan 2020 - Dec 2024'])
+
 
 espm_report = st.file_uploader('Upload ESPM Report')
 
