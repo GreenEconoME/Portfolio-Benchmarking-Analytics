@@ -74,7 +74,14 @@ if espm_report is not None:
     # Create a download button for the processed dataframes
     workbook = create_workbook(portfolio_metrics, portfolio_df, compliance_data, best_eui_shifts, worst_eui_shifts, comp_period)
     
-    st.download_button(label = 'Download Porfolio Analytics Workbook', 
+    st.download_button(label = 'Download Portfolio Analytics Workbook', 
                         data = workbook,
                         file_name = 'Portfolio Benchmarking Analytics.xlsx')
+
+    # Create a table of metrics 
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric('# of Properties', f'{len(portfolio_df)}')
+    col2.metric(f"# W/ Due Date: {comp_period.split(':')[0]}", len(compliance_data))
+    col3.metric(f"{int(comp_period.split(':')[0].split(', ')[1]) - 1} Best EUI", min(portfolio_df[f"{int(comp_period.split(':')[0].split(', ')[1]) - 1} Weather Normalized Source EUI"]))
+    col4.metric(f"{int(comp_period.split(':')[0].split(', ')[1]) - 1} Worst EUI", max(portfolio_df[f"{int(comp_period.split(':')[0].split(', ')[1]) - 1} Weather Normalized Source EUI"]))
 
