@@ -39,7 +39,8 @@ def create_compliance(metrics, comp_period):
         prop_info['Property Name'] = prop
         prop_info['LA Building Id'] = metrics.loc[metrics['Property Name'] == prop, 'Los Angeles Building ID'].values[0]
         prop_info['Square Footage'] = metrics.loc[metrics['Property Name'] == prop, 'Property GFA - Self-Reported (ft²)'].values[0]
-        
+        prop_info['Primary Property Type'] = metrics.loc[metrics['Property Name'] == prop, 'Primary Property Type - Self Selected'].values[0]
+
         # Append the property information dictionary to the list of data
         data.append(prop_info)
         

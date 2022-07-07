@@ -35,6 +35,7 @@ st.sidebar.markdown('''
             - Total GHG Emissions (Metric Tons CO2e)
             - Property GFA - Self-Reported (sqft)
             - Water Use Intensity (All Water Sources) (gal/sqft)
+            - Primary Property Type - Self Selected
         ''', unsafe_allow_html = True)
 
 # Display a select box
@@ -70,7 +71,7 @@ if espm_report is not None:
 
     # Create Portfolio Metrics df (as an aggregate portfolio)
     portfolio_metrics = create_port_metrics(metrics, comp_period)
-
+    st.write(metrics)
     # Create a download button for the processed dataframes
     workbook = create_workbook(portfolio_metrics, portfolio_df, compliance_data, best_eui_shifts, worst_eui_shifts, comp_period)
     
