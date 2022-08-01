@@ -84,7 +84,7 @@ if espm_report is not None:
 
     # Create Portfolio Metrics df (as an aggregate portfolio)
     portfolio_metrics = create_port_metrics(metrics, comp_period)
-    st.write(metrics)
+
     # Create a download button for the processed dataframes
     workbook = create_workbook(portfolio_metrics, portfolio_df, compliance_data, best_eui_shifts, worst_eui_shifts, comp_period)
     
