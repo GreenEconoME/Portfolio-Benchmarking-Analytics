@@ -17,6 +17,7 @@ st.sidebar.markdown('''
     Use the following instructions to create a report in ESPM and export it as an excel workbook. Select the compliance period from the dropdown and upload the ESPM report.
 
     - Creating the ESPM report:
+        - Within ESPM, click Reporting - My Reports and Templates - Create a New Template
         - Timeframe: Date Range
             - Yearly for the chosen compliance period.
             - For example: Compliance due date Dec 1, 2022:
@@ -36,6 +37,18 @@ st.sidebar.markdown('''
             - Property GFA - Self-Reported (sqft)
             - Water Use Intensity (All Water Sources) (gal/sqft)
             - Primary Property Type - Self Selected
+
+        - Click Save Template
+        - Return to the template and click I want to...
+            - Click Generate New Report
+        - Once the report is generated, click I want to..
+            - Download Current Report in Excel
+        
+        - Select the EBEWE Compliance Year from the dropdown menu
+        - Drag and drop the ESPM report into the file uploader
+        - Download the Portfolio Analytics Workbook
+
+        - Use an existing portfolio analytics file to retrieve the explanations for each worksheet.
         ''', unsafe_allow_html = True)
 
 # Display a select box
