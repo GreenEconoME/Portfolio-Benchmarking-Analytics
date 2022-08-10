@@ -27,6 +27,7 @@ def create_port_metrics(metrics, comp_period):
     for year in portfolio_metrics['Year Ending'].unique():
         
         # Portfolio metrics
+        # Get the energy use and ghg emissions totals and divide by the total square footage to get portfolio use/emissions intensity
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Portfolio Source EUI'] = round((
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Weather Normalized Source Energy Use (kBtu)'].sum() / 
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Property GFA - Self-Reported (ft²)'].sum()), 2)
@@ -34,33 +35,29 @@ def create_port_metrics(metrics, comp_period):
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Total GHG Emissions (Metric Tons CO2e)'].sum() / 
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Property GFA - Self-Reported (ft²)'].sum()) * 1000, 2)
         
-        # Energy Star Score Distribution Columns
+        # Energy Star Score percentile distribution columns
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'ES Score Min'] = metrics.loc[metrics['Year Ending'] == year, 'ENERGY STAR Score'].min()
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'ES Score 25th Percentile'] = round(np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'ENERGY STAR Score'], 25), 2)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'ES Score Median'] = np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'ENERGY STAR Score'], 50)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'ES Score 75th Percentile'] = round(np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'ENERGY STAR Score'], 75), 2)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'ES Score Max'] = metrics.loc[metrics['Year Ending'] == year, 'ENERGY STAR Score'].max()
         
-        # Source EUI Distribution Columns
+        # Source EUI percentile distribution columns
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Weather Normalized Source EUI Min'] = metrics.loc[metrics['Year Ending'] == year, 'Weather Normalized Source EUI (kBtu/ft²)'].min()
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Weather Normalized Source EUI 25th Percentile'] = round(np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'Weather Normalized Source EUI (kBtu/ft²)'], 25), 2)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Weather Normalized Source EUI Median'] = np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'Weather Normalized Source EUI (kBtu/ft²)'], 50)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Weather Normalized Source EUI 75th Percentile'] = round(np.nanpercentile(metrics.loc[metrics['Year Ending'] == year, 'Weather Normalized Source EUI (kBtu/ft²)'], 75), 2)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Weather Normalized Source EUI Max'] = metrics.loc[metrics['Year Ending'] == year, 'Weather Normalized Source EUI (kBtu/ft²)'].max()
 
-    # Format the portfolio_metrics dataframe
+    # Format the integer columns within the portfolio_metrics dataframe
     int_cols = ['ES Score Min', 'ES Score 25th Percentile', 'ES Score Median', 
                 'ES Score 75th Percentile', 'ES Score Max']
 
+    # Removing the .0 from the values for exporting to excel
     for col in int_cols: 
         portfolio_metrics[col] = portfolio_metrics[col].astype(str).apply(lambda x: x.replace('.0', '')) 
 
     # Replace the string nans with actual NaNs    
     portfolio_metrics.replace('nan', np.nan, inplace = True)
-
-    # Remove the empty columns
-    for col in portfolio_metrics.columns:
-        if portfolio_metrics[col].isnull().all():
-            portfolio_metrics.drop(columns = [col], inplace = True)
 
     return portfolio_metrics

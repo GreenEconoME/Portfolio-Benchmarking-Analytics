@@ -1,3 +1,4 @@
+# Import dependencies
 import pandas as pd
 from io import BytesIO
 
@@ -15,6 +16,7 @@ def create_workbook(portfolio_metrics, portfolio_df, compliance_data, best_eui_s
                 'Dec 1, 2024: Comparative Period Jan 2019 - Dec 2023': [['6', '7'], 2019], 
                 'Dec 1, 2025: Comparative Period Jan 2020 - Dec 2024': [['8', '9'], 2020]}
 
+    # Create the object to hold the excel workbook export and populate the worksheets with the generated dataframes
     data = BytesIO()
     with pd.ExcelWriter(data) as writer:
         portfolio_metrics.to_excel(writer, sheet_name = 'Portfolio Distribution', index = False)
@@ -24,4 +26,5 @@ def create_workbook(portfolio_metrics, portfolio_df, compliance_data, best_eui_s
         worst_eui_shifts.to_excel(writer, sheet_name = 'Worst EUI Shifts', index = False)
     
     workbook = data.getvalue()
+    
     return workbook

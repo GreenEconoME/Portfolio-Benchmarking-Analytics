@@ -15,8 +15,11 @@ def top_quartile_SEUI(portfolio_df, comp_period):
                 'Dec 1, 2024: Comparative Period Jan 2019 - Dec 2023': [['6', '7'], 2019], 
                 'Dec 1, 2025: Comparative Period Jan 2020 - Dec 2024': [['8', '9'], 2020]}
 
-    best_eui_shifts = portfolio_df.loc[portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] <= np.nanpercentile(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'], 25)]
-    best_eui_shifts.sort_values(by = f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change', inplace = True)
+    best_eui_shifts = portfolio_df.loc[(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] <= 
+                                        np.nanpercentile(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change']), 
+                                        25)]
+    best_eui_shifts.sort_values(by = f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change', 
+                                inplace = True)
 
     # Format the best_eui_shifts dataframe
     int_cols = ['Square Footage', 
@@ -24,9 +27,11 @@ def top_quartile_SEUI(portfolio_df, comp_period):
                 f'{comp_dict[comparative_period][1] + 3} ES Score', 
                 f'{comp_dict[comparative_period][1] + 4} ES Score']
 
+    # Remove the .0 from the integer column values for exporting to excel
     for col in int_cols: 
         best_eui_shifts[col] = best_eui_shifts[col].astype(str).apply(lambda x: x.replace('.0', '')) 
         
+    # Replace the string nans with numpy NaNs
     best_eui_shifts.replace('nan', np.nan, inplace = True)
 
     return best_eui_shifts

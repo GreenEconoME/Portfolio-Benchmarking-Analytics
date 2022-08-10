@@ -1,3 +1,4 @@
+# Import dependencies
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -25,7 +26,9 @@ def create_compliance(metrics, comp_period):
     # Getting the rows that contain properties that need to comply during chosen comparative period
     compliance = []
     for row in metrics.index:
+        # Check if there is an LA building id
         if not pd.isnull(metrics.loc[row, 'Los Angeles Building ID']):
+            # Check if the last digit of the LA building id is for the selected comparative period
             if metrics.loc[row, 'Los Angeles Building ID'][-1] in comp_dict[comparative_period][0]:
                 compliance.append(row)
 
@@ -52,7 +55,9 @@ def create_compliance(metrics, comp_period):
         
         # Populating the EBEWE Compliance comparative period data   
         for row in compliance_data.index:
+            # Iterate through the years within the comparative period
             for year in range(comp_dict[comparative_period][1], comp_dict[comparative_period][1] + 5):
+                # Check if there is data for that year to populate the compliance data
                 if not metrics.loc[metrics['Year Ending'] == f'{year}-12-31'].empty:
                     # Populate the comparative period's Energy Star Score
                         compliance_data.loc[row, f'{year} ES Score'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'ENERGY STAR Score'].item()
@@ -63,15 +68,18 @@ def create_compliance(metrics, comp_period):
                     # Populate the comparative period's Water UI
                         compliance_data.loc[row, f'{year} Water UI'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Water Use Intensity (All Water Sources) (gal/ft²)'].item()
                 
+                # If there is no compliance data for the current year, fill the compliance values with NaNs
                 else:
                     compliance_data.loc[row, f'{year} ES Score'] = np.nan
                     compliance_data.loc[row, f'{year} Weather Normalized Source EUI'] = np.nan
                     compliance_data.loc[row, f'{year} Water UI'] = np.nan
+
             # Populate the National Median Source EUI column for the last year in the compliance period
             if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'].empty:
                 compliance_data.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'National Median Source EUI (kBtu/ft²)'].item()
             else:
                 compliance_data.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = np.nan
+
             # Populate the comparative period's Best Source EUI % Change
             # Create a list to hold the percent changes for each year
             eui_percent_changes = []
@@ -123,6 +131,8 @@ def create_compliance(metrics, comp_period):
                     f'{comp_dict[comparative_period][1] + 4} ES Score', 
                     'Best EUI % Reduction Year', 
                     'Best Water UI % Change Year']
+
+        # Remove the .0 from the values for the export to excel
         for col in int_cols: 
             compliance_data[col] = compliance_data[col].astype(str).apply(lambda x: x.replace('.0', '')) 
         
