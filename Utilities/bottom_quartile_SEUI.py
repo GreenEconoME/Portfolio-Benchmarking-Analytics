@@ -17,8 +17,8 @@ def bottom_quartile_SEUI(portfolio_df, comp_period):
 
     # Get the top 25% worst EUI shifts from the portfolio_df
     worst_eui_shifts = portfolio_df.loc[(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] >= 
-                                        np.nanpercentile(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change']),
-                                        75)]
+                                        np.nanpercentile(portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'],
+                                        75))]
 
     # Sort the dataframe by the EUI percent change
     worst_eui_shifts.sort_values(by = f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change',
