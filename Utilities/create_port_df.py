@@ -55,19 +55,43 @@ def create_port_df(metrics, comp_period):
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Total GHG Emissions Intensity (kgCO2e/ft²)'] = metrics.loc[(metrics['Property Id'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'Total GHG Emissions Intensity (kgCO2e/ft²)'].item()
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Property Id'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'National Median Source EUI (kBtu/ft²)'].item()
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} % Difference From National Source EUI'] = round(((portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI'] - portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI']) / portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI']) * 100, 2)
-        
-            # Populate the Source EUI % Change and Water UI % Change for the last two years of the comparative period
-            if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 3}-12-31'].empty:
-                portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] = round(((portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI'] - portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI']) / portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI']) * 100, 2)
-                portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} Water UI % Change'] = round(((portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Water UI'] - portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3} Water UI']) / portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3} Water UI']) * 100, 2)                
+                
 
+                
         else:
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Total GHG Emissions Intensity (kgCO2e/ft²)'] = np.nan
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = np.nan
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} % Difference From National Source EUI'] = np.nan
-            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] = np.nan
-            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} Water UI % Change'] = np.nan
+            
+    # Create helper function to make a percent change column
+    def pct_change(df, new_col, old_col):
+        return round(((df[new_col] - df[old_col]) / df[old_col]) * 100, 2)
 
+    # Populate the Source EUI % Change, ES Score % Change and Water UI % Change for the last two years of the comparative period
+    if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 3}-12-31'].empty:
+        if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'].empty:
+            portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] = pct_change(portfolio_df, 
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI',
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI')
+            portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} Water UI % Change'] = pct_change(portfolio_df, 
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 4} Water UI',
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 3} Water UI')
+            portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} ES Score % Change'] = pct_change(portfolio_df, 
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 4} ES Score',
+                                                                                                                                         f'{comp_dict[comparative_period][1] + 3} ES Score')
+
+
+        # Populate the Source EUI % Change, ES Score % Change and Water UI % Change for the third and fourth years of the comparative period
+        if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 2}-12-31'].empty:
+            portfolio_df[f'{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} EUI % Change'] = pct_change(portfolio_df, 
+                                                                                                                             f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI',
+                                                                                                                             f'{comp_dict[comparative_period][1] + 2} Weather Normalized Source EUI')
+            portfolio_df[f'{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} Water UI % Change'] = pct_change(portfolio_df, 
+                                                                                                                             f'{comp_dict[comparative_period][1] + 3} Water UI',
+                                                                                                                             f'{comp_dict[comparative_period][1] + 2} Water UI')
+            portfolio_df[f'{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} ES Score % Change'] = pct_change(portfolio_df, 
+                                                                                                                             f'{comp_dict[comparative_period][1] + 3} ES Score',
+                                                                                                                             f'{comp_dict[comparative_period][1] + 2} ES Score')
     # Format the portfolio_df dataframe
     int_cols = ['Square Footage', 
                 f'{comp_dict[comparative_period][1] + 2} ES Score', 
@@ -81,29 +105,29 @@ def create_port_df(metrics, comp_period):
     portfolio_df.replace('nan', np.nan, inplace = True)
     
     # Reindex the columns
-    porfolio_df = portfolio_df.reindex(columns = ["ESPM Property Id",
+    portfolio_df = portfolio_df.reindex(columns = ["ESPM Property Id",
                                                     "Property Name",
                                                     "LA Building Id",
                                                     "Square Footage",
                                                     "Primary Property Type",
-                                                    "2019 ES Score",
-                                                    "2020 ES Score",
-                                                    "2021 ES Score",
-                                                    "2019 Weather Normalized Source EUI",
-                                                    "2020 Weather Normalized Source EUI",
-                                                    "2021 Weather Normalized Source EUI",
-                                                    "2019 Water UI",
-                                                    "2020 Water UI",
-                                                    "2021 Water UI",
-                                                    "2021 Total GHG Emissions Intensity (kgCO2e/ft²)",
-                                                    "2021 National Median Source EUI",
-                                                    "2021 % Difference From National Source EUI",
-                                                    "2020-2021 EUI % Change",
-                                                    "2020-2021 Water UI % Change"])
+                                                    f'{comp_dict[comparative_period][1] + 2} ES Score', 
+                                                    f'{comp_dict[comparative_period][1] + 3} ES Score', 
+                                                    f'{comp_dict[comparative_period][1] + 4} ES Score',
+                                                    f"{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} ES Score % Change",
+                                                    f"{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} ES Score % Change",
+                                                    f"{comp_dict[comparative_period][1] + 2} Weather Normalized Source EUI",
+                                                    f"{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI",
+                                                    f"{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI",
+                                                    f"{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} EUI % Change",
+                                                    f"{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change",
+                                                    f"{comp_dict[comparative_period][1] + 4} National Median Source EUI",
+                                                    f"{comp_dict[comparative_period][1] + 4} % Difference From National Source EUI",
+                                                    f"{comp_dict[comparative_period][1] + 2} Water UI",
+                                                    f"{comp_dict[comparative_period][1] + 3} Water UI",
+                                                    f"{comp_dict[comparative_period][1] + 4} Water UI",
+                                                    f"{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} Water UI % Change",
+                                                    f"{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} Water UI % Change",
+                                                    f"{comp_dict[comparative_period][1] + 4} Total GHG Emissions Intensity (kgCO2e/ft²)"])
 
-    # Remove the empty columns
-    for col in porfolio_df.columns:
-        if porfolio_df[col].isnull().all():
-            porfolio_df.drop(columns = [col], inplace = True)
 
     return portfolio_df
