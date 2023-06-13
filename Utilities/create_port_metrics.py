@@ -32,7 +32,7 @@ def create_port_metrics(metrics, comp_period):
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Weather Normalized Source Energy Use (kBtu)'].sum() / 
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Property GFA - Self-Reported (ft²)'].sum()), 2)
         portfolio_metrics.loc[portfolio_metrics['Year Ending'] == year, 'Portfolio GHG Emissions Intensity (kgCO2e/ft²)'] = round((
-            metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Total GHG Emissions (Metric Tons CO2e)'].sum() / 
+            metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Total (Location-Based) GHG Emissions (Metric Tons CO2e)'].sum() / 
             metrics.loc[(~metrics['Weather Normalized Source Energy Use (kBtu)'].isna()) & (metrics['Year Ending'] == year), 'Property GFA - Self-Reported (ft²)'].sum()) * 1000, 2)
         
         # Energy Star Score percentile distribution columns

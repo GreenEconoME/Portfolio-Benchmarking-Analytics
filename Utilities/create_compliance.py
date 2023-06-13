@@ -38,7 +38,7 @@ def create_compliance(metrics, comp_period):
     for prop in metrics.loc[compliance, 'Property Name'].unique():
         # Create and populate a dictionary to hold each properties information
         prop_info = {}
-        prop_info['ESPM Property Id'] = metrics.loc[metrics['Property Name'] == prop, 'Property Id'].values[0]
+        prop_info['ESPM Property Id'] = metrics.loc[metrics['Property Name'] == prop, 'Portfolio Manager Property ID'].values[0]
         prop_info['Property Name'] = prop
         prop_info['LA Building Id'] = metrics.loc[metrics['Property Name'] == prop, 'Los Angeles Building ID'].values[0]
         prop_info['Square Footage'] = metrics.loc[metrics['Property Name'] == prop, 'Property GFA - Self-Reported (ft²)'].values[0]
@@ -60,13 +60,13 @@ def create_compliance(metrics, comp_period):
                 # Check if there is data for that year to populate the compliance data
                 if not metrics.loc[metrics['Year Ending'] == f'{year}-12-31'].empty:
                     # Populate the comparative period's Energy Star Score
-                        compliance_data.loc[row, f'{year} ES Score'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'ENERGY STAR Score'].item()
+                        compliance_data.loc[row, f'{year} ES Score'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'ENERGY STAR Score'].item()
                         
                     # Populate the comparative period's Source EUI
-                        compliance_data.loc[row, f'{year} Weather Normalized Source EUI'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Weather Normalized Source EUI (kBtu/ft²)'].item()
+                        compliance_data.loc[row, f'{year} Weather Normalized Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Weather Normalized Source EUI (kBtu/ft²)'].item()
                         
                     # Populate the comparative period's Water UI
-                        compliance_data.loc[row, f'{year} Water UI'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Water Use Intensity (All Water Sources) (gal/ft²)'].item()
+                        compliance_data.loc[row, f'{year} Water UI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Water Use Intensity (All Water Sources) (gal/ft²)'].item()
                 
                 # If there is no compliance data for the current year, fill the compliance values with NaNs
                 else:
@@ -76,7 +76,7 @@ def create_compliance(metrics, comp_period):
 
             # Populate the National Median Source EUI column for the last year in the compliance period
             if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'].empty:
-                compliance_data.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Property Id'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'National Median Source EUI (kBtu/ft²)'].item()
+                compliance_data.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == compliance_data.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'National Median Source EUI (kBtu/ft²)'].item()
             else:
                 compliance_data.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = np.nan
 
@@ -116,11 +116,11 @@ def create_compliance(metrics, comp_period):
                 # Populate the Best Water UI % Reduction Year column
                 compliance_data.loc[row, 'Best Water UI % Change Year'] = filter_tuple_list(wui_percent_changes, min(wui_percent_changes, key = lambda x: x[0])[0])
             
-            # Populate the Water Exemption #1 column
-            if compliance_data.loc[row, 'Best Water UI % Change'] <= -20:
-                compliance_data.loc[row, 'Water Exemption #1?'] = 'Yes'
-            else:
-                compliance_data.loc[row, 'Water Exemption #1?'] = 'No'
+                # Populate the Water Exemption #1 column
+                if compliance_data.loc[row, 'Best Water UI % Change'] <= -20:
+                    compliance_data.loc[row, 'Water Exemption #1?'] = 'Yes'
+                else:
+                    compliance_data.loc[row, 'Water Exemption #1?'] = 'No'
 
         # Format the compliance_data columns that are integers
         int_cols = ['Square Footage', 
