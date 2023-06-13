@@ -22,6 +22,8 @@ st.sidebar.markdown('''
             - Yearly for the chosen compliance period.
             - For example: Compliance due date Dec 1, 2022:
                 - Choose yearly from Dec 31, 2017 to Dec 31, 2021
+                - Can also choose yearly from another month. Example:
+                    - Sept 30, 2017 to Sept 30, 2022
             
         - Properties 
             - Select which buildings to include in the report
@@ -52,11 +54,11 @@ st.sidebar.markdown('''
         ''', unsafe_allow_html = True)
 
 # Display a select box
-comp_period = st.selectbox('Choose an EBEWE Compliance Year', ['Dec 1, 2021: Comparative Period Jan 2016 - Dec 2020', 
-                                                                'Dec 1, 2022: Comparative Period Jan 2017 - Dec 2021', 
-                                                                'Dec 1, 2023: Comparative Period Jan 2018 - Dec 2022', 
-                                                                'Dec 1, 2024: Comparative Period Jan 2019 - Dec 2023', 
-                                                                'Dec 1, 2025: Comparative Period Jan 2020 - Dec 2024'])
+comp_period = st.selectbox('Choose an EBEWE Compliance Year', ['Dec 1, 2021: Comparative Period 2016 - 2020', 
+                                                                'Dec 1, 2022: Comparative Period 2017 - 2021', 
+                                                                'Dec 1, 2023: Comparative Period 2018 - 2022', 
+                                                                'Dec 1, 2024: Comparative Period 2019 - 2023', 
+                                                                'Dec 1, 2025: Comparative Period 2020 - 2024'])
 
 
 espm_report = st.file_uploader('Upload ESPM Report')
