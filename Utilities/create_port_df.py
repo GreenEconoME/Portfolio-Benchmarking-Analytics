@@ -33,28 +33,33 @@ def create_port_df(metrics, comp_period):
     # Create a dataframe from each properties information
     portfolio_df = pd.DataFrame(data)
 
+    # Take note of the active month and day that the espm report was created for
+    active_month = metrics['Year Ending'].dt.month.unique()[0]
+    active_day = metrics['Year Ending'].dt.day.unique()[0]
     # Populating the EBEWE Compliance comparative period data
     for row in portfolio_df.index:
         
         # Populate the last three years Energy Star Score, Source EUI and Water UI
         for year in range(comp_dict[comparative_period][1] + 2, comp_dict[comparative_period][1] + 5):
-            if not metrics.loc[metrics['Year Ending'] == f'{year}-12-31'].empty:
-                portfolio_df.loc[row, f'{year} ES Score'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'ENERGY STAR Score'].item()
+            year_ending = pd.to_datetime(f"{year}-{active_month}-{active_day}").strftime("%Y-%m-%d")
+
+            if not metrics.loc[metrics['Year Ending'] == year_ending].empty:
+                portfolio_df.loc[row, f'{year} ES Score'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == year_ending), 'ENERGY STAR Score'].item()
                 
                 # Populate the last three years Source EUI
-                portfolio_df.loc[row, f'{year} Weather Normalized Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Weather Normalized Source EUI (kBtu/ft²)'].item()
+                portfolio_df.loc[row, f'{year} Weather Normalized Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == year_ending), 'Weather Normalized Source EUI (kBtu/ft²)'].item()
                 
                 # Populate the last three years Water UI
-                portfolio_df.loc[row, f'{year} Water UI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{year}-12-31'), 'Water Use Intensity (All Water Sources) (gal/ft²)'].item()
+                portfolio_df.loc[row, f'{year} Water UI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == year_ending), 'Water Use Intensity (All Water Sources) (gal/ft²)'].item()
             else:
                 portfolio_df.loc[row, f'{year} ES Score'] = np.nan
                 portfolio_df.loc[row, f'{year} Weather Normalized Source EUI'] = np.nan
                 portfolio_df.loc[row, f'{year} Water UI'] = np.nan
         # Populate the GHG Emissions Intensity, National Median Source EUI, % difference from National Source EUI, Source EUI % Change, Water UI % Change
         # for the last year(s) of the comparative period
-        if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'].empty:
-            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Total GHG Emissions Intensity (kgCO2e/ft²)'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'Total (Location-Based) GHG Emissions Intensity (kgCO2e/ft²)'].item()
-            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'), 'National Median Source EUI (kBtu/ft²)'].item()
+        if not metrics.loc[metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 4}-{active_month}-{active_day}').strftime("%Y-%m-%d")].empty:
+            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Total GHG Emissions Intensity (kgCO2e/ft²)'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 4}-{active_month}-{active_day}').strftime("%Y-%m-%d")), 'Total (Location-Based) GHG Emissions Intensity (kgCO2e/ft²)'].item()
+            portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI'] = metrics.loc[(metrics['Portfolio Manager Property ID'] == portfolio_df.loc[row, 'ESPM Property Id']) & (metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 4}-{active_month}-{active_day}').strftime("%Y-%m-%d")), 'National Median Source EUI (kBtu/ft²)'].item()
             portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} % Difference From National Source EUI'] = round(((portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI'] - portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI']) / portfolio_df.loc[row, f'{comp_dict[comparative_period][1] + 4} National Median Source EUI']) * 100, 2)
                 
 
@@ -69,8 +74,8 @@ def create_port_df(metrics, comp_period):
         return round(((df[new_col] - df[old_col]) / df[old_col]) * 100, 2)
 
     # Populate the Source EUI % Change, ES Score % Change and Water UI % Change for the last two years of the comparative period
-    if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 3}-12-31'].empty:
-        if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 4}-12-31'].empty:
+    if not metrics.loc[metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 3}-{active_month}-{active_day}').strftime("%Y-%m-%d")].empty:
+        if not metrics.loc[metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 4}-{active_month}-{active_day}').strftime("%Y-%m-%d")].empty:
             portfolio_df[f'{comp_dict[comparative_period][1] + 3}-{comp_dict[comparative_period][1] + 4} EUI % Change'] = pct_change(portfolio_df, 
                                                                                                                                          f'{comp_dict[comparative_period][1] + 4} Weather Normalized Source EUI',
                                                                                                                                          f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI')
@@ -83,7 +88,7 @@ def create_port_df(metrics, comp_period):
 
 
         # Populate the Source EUI % Change, ES Score % Change and Water UI % Change for the third and fourth years of the comparative period
-        if not metrics.loc[metrics['Year Ending'] == f'{comp_dict[comparative_period][1] + 2}-12-31'].empty:
+        if not metrics.loc[metrics['Year Ending'] == pd.to_datetime(f'{comp_dict[comparative_period][1] + 2}-{active_month}-{active_day}').strftime("%Y-%m-%d")].empty:
             portfolio_df[f'{comp_dict[comparative_period][1] + 2}-{comp_dict[comparative_period][1] + 3} EUI % Change'] = pct_change(portfolio_df, 
                                                                                                                              f'{comp_dict[comparative_period][1] + 3} Weather Normalized Source EUI',
                                                                                                                              f'{comp_dict[comparative_period][1] + 2} Weather Normalized Source EUI')

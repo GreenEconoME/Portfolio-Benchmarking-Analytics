@@ -19,9 +19,11 @@ def create_port_metrics(metrics, comp_period):
     # Creating a dataframe to hold the metrics for the aggregated portfolio
     portfolio_metrics = pd.DataFrame()
 
+
     # Populate the first column of the portfolio metrics dataframe
     for year in range(comp_dict[comparative_period][1], comp_dict[comparative_period][1] + 5):
-        portfolio_metrics.loc[len(portfolio_metrics), 'Year Ending'] = f'{year}-12-31'
+        # portfolio_metrics.loc[len(portfolio_metrics), 'Year Ending'] = f'{year}-12-31'
+        portfolio_metrics.loc[len(portfolio_metrics), 'Year Ending'] = pd.to_datetime(f"{year}-{metrics['Year Ending'].dt.month.unique()[0]}-{metrics['Year Ending'].dt.day.unique()[0]}").strftime("%Y-%m-%d")
 
     # Populate the columns of the portfolio metrics df
     for year in portfolio_metrics['Year Ending'].unique():
